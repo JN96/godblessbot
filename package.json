@@ -1,0 +1,34 @@
+{
+  "name": "godblessbot",
+  "version": "1.0.0",
+  "description": "God bless <insert_item>.",
+  "main": "godBlessBot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "James Nicholson",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "8.2.0",
+    "twit": "2.2.11",
+    "requirejs": "2.3.6"
+  },
+  "devDependencies": {
+    "eslint": "6.6.0",
+    "eslint-config-google": "0.14.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/JN96/godblessbot.git"
+  },
+  "keywords": [
+    "godblessbot",
+    "node",
+    "javascript",
+    "es6"
+  ],
+  "bugs": {
+    "url": "https://github.com/JN96/godblessbot/issues"
+  },
+  "homepage": "https://github.com/JN96/godblessbot#readme"
+}
