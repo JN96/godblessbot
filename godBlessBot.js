@@ -143,5 +143,4 @@ function waitAndExecute(message) {
 /**
  * Execute script.
  */
-// postTweet(waitAndExecute);
 getPreviousTweets();
