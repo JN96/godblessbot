@@ -40,7 +40,8 @@ function getRandomString() {
 }
 
 /**
- * Contains the call to make a tweet.
+ * Posts tweet with randomly chosen string if postTweetTime equals the current time.
+ * If the time condition is not met, the function will repeat base on timeout in the callback.
  *
  * @param callback is the {@link waitAndExecute} callback.
  * @param message is the string returned from the dictionary in {@link getRandomString}.
@@ -67,7 +68,7 @@ function postTweet(callback, message) {
 }
 
 /**
- * Get time and date which will be used to automate tweets.
+ * Returns the current time in 24hr format with hours, minutes and seconds.
  */
 function getTimeAndDate() {
     const date = new Date();
@@ -80,7 +81,9 @@ function getTimeAndDate() {
 }
 
 /**
- * Retrieve all tweets from a given date from a give user.
+ * Retrieves past tweets from the specified username.
+ * Tweets will be returned based on the query parameter with a phrase and date passed in.
+ *
  * Executes {@link filterTweets} with the found tweets passed as a parameter.
  */
 function getPreviousTweets() {
@@ -115,8 +118,7 @@ function filterTweets(previousTweets, randomString) {
         filterResult.push(tweet.includes(randomString));
     }
 
-    if (filterResult.length !== 0
-    ) {
+    if (filterResult.length !== 0) {
         if (filterResult.includes(true)) {
             console.log(`one or more tweets already contain the string "${randomString}". Choosing new string...`);
             filterTweets(storePreviousTweets, getRandomString());
