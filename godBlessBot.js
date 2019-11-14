@@ -1,5 +1,5 @@
-var Twit = require('twit');
-var Dotenv = require('dotenv');
+const Twit = require('twit');
+const Dotenv = require('dotenv');
 Dotenv.config();
 
 /**
@@ -34,7 +34,11 @@ function getRandomString() {
         'fizzy cola bottles',
         'ghosts',
         'beetlejuice',
-        'firelighters'
+        'firelighters',
+        'vidya gaemz',
+        'baileys',
+        'creamy mashed potatoes',
+        'the rains down in africa'
     ];
     return dictionary[Math.floor(Math.random() * dictionary.length)];
 }
