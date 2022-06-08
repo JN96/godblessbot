@@ -1,5 +1,6 @@
 import { TwitterApi } from 'twitter-api-v2';
 import schedule from 'node-schedule';
+import fetch from 'node-fetch';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -13,14 +14,13 @@ const client = new TwitterApi({
     accessSecret: process.env.OAUTH_TOKEN_SECRET, // OAuth secret
 });
 
-// Get Twitter user timeline
 const user = await client.v1.userTimelineByUsername(process.env.SCREEN_NAME);
 
-// Post tweet at specific time
 const postTweet = async (word) => {
     const tweet = `God bless ${word}. \n\n-godblessbot`
 
     try {
+        logger('Attempting to post tweet...');
         await client.v1.tweet(tweet);
         logger(`Tweet was posted with text ${word} at ${getDateAndTime()}.`)
     } catch (error) {
@@ -35,44 +35,50 @@ const getUserTweets = () => {
     });
 }
 
-// Get random word from Wordnik dictionary API
-const getRandomWordFromDictionary = () => {
+const getRandomWordFromDictionary = async () => {
     logger('Retrieving new word from dictionary.');
-    // TODO - implement Wordnik dictionary API to retrieve a random word
+    let url = process.env.WORDNIK_RANDOM_WORD_API_URL + process.env.WORDNIK_API_KEY;
+    return await fetch(url, {method: 'GET'})
+      .then(response => {
+          if (response.ok) {
+              return response.json();
+          }
+      })
+      .catch((error) => {
+          logger(`Something went wrong: ${error}`);
+      }) ;
 }
 
-// Check if word was already used in a tweet
 const isWordUsed = (word, userTweets) => {
     let isUsed = false;
 
     userTweets.forEach(tweet => {
         let found = new RegExp('\\b' + word + '\\b', 'm').test(tweet.full_text); // \b - whole word entry only, m - multiline flag
         if (found) {
-            logger(`${word} was found.`);
+            logger(`${word} was found in a previous tweet.`);
             isUsed = true;
         }
     });
 
+    if (!isUsed) {
+        logger(`${word} was not found in a previous tweet.`);
+    }
+
     return isUsed;
 }
 
-// Returns the current time in 24hr format with hours, minutes and seconds.
 const getDateAndTime = () => {
     const time = Date.now();
     return new Date(time).toLocaleTimeString('en-IE', {timeZone: 'Europe/Dublin'});
 }
 
-// Reusable logger with timestamps
 const logger = (text) => {
     console.log(`[${getDateAndTime()}] ${text}`);
 }
 
-logger(`Scrip was started. Job scheduled with cron time ${process.env.CRON_TIME}.`);
+logger(`Script was started. Job scheduled with cron time ${process.env.CRON_TIME}.`);
 
-// every dat at 22:00 - 0 22 * * *
-// every dat at 22:10 - 10 22 * * *
-// every 1 minute(s) - */1 * * * *
-schedule.scheduleJob(process.env.CRON_TIME, function() {
+schedule.scheduleJob(process.env.CRON_TIME, async function() {
     logger('Starting scheduled job.');
 
     let word = '';
@@ -80,12 +86,15 @@ schedule.scheduleJob(process.env.CRON_TIME, function() {
 
     while (isWordInTweet) {
         let userTweets = getUserTweets();
-        word = getRandomWordFromDictionary();
-        isWordInTweet = isWordUsed('NEWWORD', userTweets);
+        word = await getRandomWordFromDictionary()
+          .then(data => {
+              logger(`New word is ${data.word}.`);
+              return data.word;
+          });
+        isWordInTweet = isWordUsed(word, userTweets);
     }
 
     if (!isWordInTweet) {
-        logger('Job was executed.');
-        // postTweet('godblessbot'); // TODO - uncomment after Wordnik API is implemented
+        postTweet(word);
     }
 });
